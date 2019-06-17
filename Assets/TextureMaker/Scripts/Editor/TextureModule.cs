@@ -213,7 +213,7 @@ namespace TextureMaker
         [SerializeField] private int seed = 1;
         [SerializeField] private float perlinNoiseScale = 50f;
         [SerializeField] private float perlinNoisePersistence = 0.5f;
-        [SerializeField] private float perlinNoiseFrequency = 2f;
+        // [SerializeField] private float perlinNoiseFrequency = 2f;
         [SerializeField] private Vector2 perlinNoiseOffset = Vector2.zero;
 
         // Random noise.
@@ -299,7 +299,7 @@ namespace TextureMaker
             seed = 1;
             perlinNoiseScale = 50f;
             perlinNoisePersistence = 0.5f;
-            perlinNoiseFrequency = 2f;
+            // perlinNoiseFrequency = 2f;
             perlinNoiseOffset = Vector2.zero;
 
             // Random noise.

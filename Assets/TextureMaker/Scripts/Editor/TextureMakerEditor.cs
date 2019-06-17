@@ -35,7 +35,7 @@ namespace TextureMaker
         [SerializeField] private TextureModule textureModule = new TextureModule();
         [SerializeField] private ToolsModule toolsModule = new ToolsModule();
 
-        [MenuItem("Tools/Texture Generator _F1")]
+        [MenuItem("Tools/Texture Maker _F1")]
         private static void Init()
         {            
             // Generate a random icon on startup.
@@ -304,12 +304,23 @@ namespace TextureMaker
             {
                 if(!createdPreviewObject)
                 {
-                    previewObject  = GameObject.Find("_TestObject")? GameObject.Find("_TestObject") : GameObject.CreatePrimitive(PrimitiveType.Cube);
-                    previewObject.name = "_TestObject";
-                    previewMat = new Material(Shader.Find("Standard"));
-                    // previewMat = new Material(Shader.Find("Unlit/Texture"));
-                    previewMat.EnableKeyword("_MainTex");
-                    previewMat.EnableKeyword("_BumpMap");
+                    previewObject = GameObject.Find("_PreviewCube");
+                    
+                    if(!previewObject)
+                    {
+                        previewObject = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                        previewObject.name = "_PreviewCube";
+                    }
+
+                                        // Standard shader.
+
+                    // previewMat = new Material(Shader.Find("Standard"));
+                    // previewMat.EnableKeyword("_MainTex");
+                    // previewMat.EnableKeyword("_BumpMap");
+
+                                        // Unlit shader.
+                    previewMat = new Material(Shader.Find("Unlit/Texture"));
+                    
                     previewObject.GetComponent<Renderer>().material = previewMat;
                     
                     previewObjectEditor = Editor.CreateEditor(previewObject);
