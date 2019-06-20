@@ -81,6 +81,7 @@ namespace TextureMaker
         private List<Texture2D> texturesList = new List<Texture2D>();
         private List<Texture2D> alphaTexturesList = new List<Texture2D>();
 
+        private bool useAlphaTextures = false;
         private Vector2 scrollPos;
 
         private GUIStyle boxStyle;
@@ -89,7 +90,6 @@ namespace TextureMaker
         {
             texturesList.Add(null);
             texturesList.Add(null);
-            alphaTexturesList.Add(null);
             alphaTexturesList.Add(null);
 
             blendingFactorsList.Add(0);
@@ -114,30 +114,40 @@ namespace TextureMaker
                     {
                         // TODO: Revisit this in the future. enhance the blending functionality?
 
-                                                                // Alpha textures to use.
-
-                        // EditorGUILayout.LabelField(string.Format("Alpha {0}", (i + 1)), EditorStyles.centeredGreyMiniLabel, GUILayout.Width(50));
-                        // alphaTexturesList[i] = (Texture2D)EditorGUILayout.ObjectField("", alphaTexturesList[i], typeof(Texture2D), false, GUILayout.Width(80));
-                        
                         if(i == 0)
                         {
-                            EditorGUILayout.HelpBox("Textures must be of equal size in order for blending to work.", MessageType.Info);
+                            EditorGUILayout.BeginVertical();
+                            {
+                                EditorGUILayout.HelpBox("Textures must be of equal size in order for blending to work.", MessageType.Info);
+                                useAlphaTextures = EditorGUILayout.Toggle("Use alpha textures", useAlphaTextures);
+                            }
+                            EditorGUILayout.EndVertical();
                         }
                         
-                                                                // Sliders.
                         if(i > 0)
                         {
-                            if(texturesList[i])
+                                                                // Alpha textures.
+
+                            if(useAlphaTextures)
                             {
-                                GUILayout.FlexibleSpace();                            
-                                
-                                EditorGUILayout.BeginHorizontal();
+                                EditorGUILayout.LabelField(string.Format("Alpha {0}", (i)), EditorStyles.centeredGreyMiniLabel, GUILayout.Width(50));
+                                alphaTexturesList[i - 1] = (Texture2D)EditorGUILayout.ObjectField("", alphaTexturesList[i - 1], typeof(Texture2D), false, GUILayout.Width(80));
+                            }
+                            else
+                            {
+                                                                    // Sliders.
+                                if(texturesList[i])
                                 {
-                                    EditorGUILayout.LabelField("Blend " + i, EditorStyles.centeredGreyMiniLabel, GUILayout.MaxWidth(40));
-                                    blendingFactorsList[i - 1] = EditorGUILayout.Slider("", blendingFactorsList[i - 1], 0f, 1f, GUILayout.MinWidth(100));
                                     GUILayout.FlexibleSpace();                            
+                                    
+                                    EditorGUILayout.BeginHorizontal();
+                                    {
+                                        EditorGUILayout.LabelField("Blend " + i, EditorStyles.centeredGreyMiniLabel, GUILayout.MaxWidth(40));
+                                        blendingFactorsList[i - 1] = EditorGUILayout.Slider("", blendingFactorsList[i - 1], 0f, 1f, GUILayout.MinWidth(100));
+                                        GUILayout.FlexibleSpace();                            
+                                    }
+                                    EditorGUILayout.EndHorizontal();
                                 }
-                                EditorGUILayout.EndHorizontal();
                             }
                         }
                         
@@ -187,7 +197,8 @@ namespace TextureMaker
 
         public Texture2D GetTexture()
         {
-            // return TextureMaker.BlendTextures(texturesList.ToArray(), alphaTexturesList.ToArray());
+            if(useAlphaTextures)
+                return TextureMaker.BlendTextures(texturesList.ToArray(), alphaTexturesList.ToArray());
 
             return TextureMaker.BlendTextures(texturesList.ToArray(), blendingFactorsList.ToArray());
         }
@@ -199,12 +210,13 @@ namespace TextureMaker
             texturesList.Add(null);
             texturesList.Add(null);
 
-            // alphaTexturesList.Clear();
-            // alphaTexturesList.Add(null);
-            // alphaTexturesList.Add(null);
+            alphaTexturesList.Clear();
+            alphaTexturesList.Add(null);
 
             blendingFactorsList.Clear();
             blendingFactorsList.Add(0);
+
+            useAlphaTextures = false;
 
             scrollPos = Vector2.zero;
         }

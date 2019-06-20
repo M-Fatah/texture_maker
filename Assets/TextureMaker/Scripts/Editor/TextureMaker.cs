@@ -918,10 +918,10 @@ namespace TextureMaker
                 {
                     if(textures[i])
                     {
-                        if(alphaTextures[i])
+                        if(alphaTextures[i - 1])
                         {
-                            alphaTextures[i] = MakeGrayscale(alphaTextures[i]);
-                            Color[] alphaPixels = alphaTextures[i].GetPixels();
+                            // alphaTextures[i - 1] = MakeGrayscale(alphaTextures[i - 1]);
+                            Color[] alphaPixels = alphaTextures[i - 1].GetPixels();
 
                             Color[] nextLayerColors = textures[i].GetPixels();
                             
@@ -930,7 +930,7 @@ namespace TextureMaker
                                 for(int j = 0; j < newColors.Length; j++)
                                 {
                                     // TODO: Fix blending values, don't use Color.Lerp.
-                                    newColors[j] = Color.Lerp(newColors[j], nextLayerColors[j], alphaPixels[j].r * nextLayerColors[j].a);
+                                    newColors[j] = Color.Lerp(newColors[j], nextLayerColors[j], alphaPixels[j].a /* * nextLayerColors[j].a */);
                                 }
                             }
                         }
