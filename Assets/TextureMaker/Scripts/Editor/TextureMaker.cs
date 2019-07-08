@@ -131,7 +131,7 @@ namespace TextureMaker
         /// <param name="c2"> Color 2. </param>
         /// <param name="flip"> If true, swaps c1 with c2. </param>
         /// </summary>
-        public static Texture2D FillCircles(int width, int height, Vector2Int count, Color c1, Color c2, bool flip = false)
+        public static Texture2D FillCircles(int width, int height, Vector2Int count, Color c1, Color c2, float scale, bool flip = false)
         {
             Texture2D tex = new Texture2D(width, height, TextureFormat.RGBA32, true);
             tex.name = "tex_circles_.png";
@@ -161,7 +161,7 @@ namespace TextureMaker
 
                     float root = Mathf.Sqrt(xx * xx + yy * yy);
                     
-                    colors[x + y * tex.width] = Color.Lerp(c1, c2, Mathf.Abs(Mathf.Sin(root / maxCount)));
+                    colors[x + y * tex.width] = Color.Lerp(c1, c2, Mathf.Abs(Mathf.Sin((root / maxCount) / scale)));
                 }
             }
 
@@ -931,6 +931,54 @@ namespace TextureMaker
                                 {
                                     // TODO: Fix blending values, don't use Color.Lerp.
                                     newColors[j] = Color.Lerp(newColors[j], nextLayerColors[j], alphaPixels[j].a /* * nextLayerColors[j].a */);
+                                }
+                            }
+                        }
+                    }
+                }
+
+                tex.SetPixels(newColors);
+                tex.Apply();
+
+                return tex;
+            }
+
+            return Texture2D.whiteTexture;
+        }
+
+        /// <summary>
+        /// Blends given textures together.
+        /// <param name="textures"> Textures to blend together. </param>
+        /// <param name="maskTextures"> Textures used as an alpha map. </param>
+        /// <returns> Returns the result as a texture. </returns>
+        /// </summary>
+        public static Texture2D BlendUsingMaskTextures(Texture2D[] textures, Texture2D[] maskTextures)
+        {
+            if(textures != null && textures.Length > 0 && textures[0])
+            {
+                Texture2D tex = new Texture2D(textures[0].width, textures[0].height, TextureFormat.RGBA32, true);
+                tex.name = "tex_blended_.png";
+                    
+                Color[] newColors = textures[0].GetPixels();
+
+                    
+                
+                for(int i = 1; i < textures.Length; i++)
+                {
+                    if(textures[i])
+                    {
+                        if(maskTextures[i - 1])
+                        {
+                            Color[] alphaPixels = MakeGrayscale(maskTextures[i - 1]).GetPixels();
+
+                            Color[] nextLayerColors = textures[i].GetPixels();
+                            
+                            if(newColors.Length == nextLayerColors.Length)
+                            {
+                                for(int j = 0; j < newColors.Length; j++)
+                                {
+                                    // TODO: Fix blending values, don't use Color.Lerp.
+                                    newColors[j] = Color.Lerp(newColors[j], nextLayerColors[j], alphaPixels[j].r * nextLayerColors[j].a);
                                 }
                             }
                         }

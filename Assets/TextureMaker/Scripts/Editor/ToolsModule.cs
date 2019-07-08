@@ -130,7 +130,7 @@ namespace TextureMaker
 
                             if(useAlphaTextures)
                             {
-                                EditorGUILayout.LabelField(string.Format("Alpha {0}", (i)), EditorStyles.centeredGreyMiniLabel, GUILayout.Width(50));
+                                EditorGUILayout.LabelField(string.Format("Mask {0}", (i)), EditorStyles.centeredGreyMiniLabel, GUILayout.Width(50));
                                 alphaTexturesList[i - 1] = (Texture2D)EditorGUILayout.ObjectField("", alphaTexturesList[i - 1], typeof(Texture2D), false, GUILayout.Width(80));
                             }
                             else
@@ -198,7 +198,7 @@ namespace TextureMaker
         public Texture2D GetTexture()
         {
             if(useAlphaTextures)
-                return TextureMaker.BlendTextures(texturesList.ToArray(), alphaTexturesList.ToArray());
+                return TextureMaker.BlendUsingMaskTextures(texturesList.ToArray(), alphaTexturesList.ToArray());
 
             return TextureMaker.BlendTextures(texturesList.ToArray(), blendingFactorsList.ToArray());
         }

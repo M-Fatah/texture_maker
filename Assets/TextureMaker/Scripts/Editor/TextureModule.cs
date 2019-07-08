@@ -327,6 +327,9 @@ namespace TextureMaker
         // Tile.
         [SerializeField] private Vector2 padding = new Vector2(6, 6);
 
+        // Circles.
+        [SerializeField] private float scale = 1f;
+
         [SerializeField] private bool flipTexture = false;
 
         public void Draw()
@@ -351,6 +354,11 @@ namespace TextureMaker
             {
                 padding = EditorGUILayout.Vector2Field("Padding", padding);
             }
+            else if(patternType == PatternType.CIRCLES)
+            {
+                scale = EditorGUILayout.Slider("Scale", scale, 1, 100);
+            }
+
 
             flipTexture = EditorGUILayout.Toggle("Flip", flipTexture);
         }
@@ -362,7 +370,7 @@ namespace TextureMaker
                 case PatternType.CHECKER:
                     return TextureMaker.FillChecker(textureSize.x, textureSize.y, count, color1, color2, flipTexture);
                 case PatternType.CIRCLES:
-                    return TextureMaker.FillCircles(textureSize.x, textureSize.y, count, color1, color2, flipTexture);
+                    return TextureMaker.FillCircles(textureSize.x, textureSize.y, count, color1, color2, scale, flipTexture);
                 case PatternType.TILE:
                     return TextureMaker.FillTile(textureSize.x, textureSize.y,  count, padding, color1, color2, flipTexture);
                 default:
@@ -376,6 +384,8 @@ namespace TextureMaker
             color2 = Color.white;
             count = new Vector2Int(6, 6);
             padding = new Vector2(6, 6);
+
+            scale = 1f;
 
             flipTexture = false;
         }
