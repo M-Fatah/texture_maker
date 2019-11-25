@@ -165,7 +165,7 @@ namespace TextureMaker
             //     }
 
             // }
-                
+            
             EditorGUILayout.BeginVertical("box");
 
             textureModule.DrawTextureControls();
@@ -320,10 +320,15 @@ namespace TextureMaker
 
                                         // Unlit shader.
                     previewMat = new Material(Shader.Find("Unlit/Texture"));
+                    previewMat.SetTexture("_MainTex", textureToPreview);
                     
                     previewObject.GetComponent<Renderer>().material = previewMat;
                     
+                    if(previewObjectEditor)
+                        DestroyImmediate(previewObjectEditor);
+                    
                     previewObjectEditor = Editor.CreateEditor(previewObject);
+
 
                     createdPreviewObject = true;
                 }
@@ -341,9 +346,6 @@ namespace TextureMaker
                         previewObjectEditor = Editor.CreateEditor(previewObject);
                     }
                 }
-                
-                // Draw the "Preview" label.
-                // EditorGUILayout.LabelField("Preview", EditorStyles.centeredGreyMiniLabel, options);
     
                 if (previewObject != null)
                 {
@@ -361,9 +363,6 @@ namespace TextureMaker
                     if(textureToPreview)
                         borderTexture = TextureMaker.FillSolid(textureToPreview.width, textureToPreview.height, new Color(0.25f, 0.25f, 0.25f, 1f));
                 }
-                
-                // Draw the "Preview" label.
-                // EditorGUILayout.LabelField("Preview", EditorStyles.centeredGreyMiniLabel, options);
 
                 if(textureToPreview)
                 {

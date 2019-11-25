@@ -15,6 +15,7 @@ namespace TextureMaker
         [SerializeField] private IToolsModule blendModule = new BlendModule();
         [SerializeField] private IToolsModule generateMapsModule = new GenerateMapsModule();
 
+        [SerializeField] private bool invert = false;
         [SerializeField] private float strength = 0.5f;
 
         private string[] toolsTabsNames = { "Generate maps", "Blend" };
@@ -47,6 +48,7 @@ namespace TextureMaker
         {
             if(previewType == PreviewType.NORMAL_MAP || previewType == PreviewType.SOBEL_OPERATOR)
             {
+                invert = EditorGUILayout.Toggle("Invert", invert);
                 strength = EditorGUILayout.Slider("Strength", strength, 0.0f, 5.0f);
             }
         }
@@ -62,11 +64,11 @@ namespace TextureMaker
                     break;
 
                 case PreviewType.NORMAL_MAP:
-                    tex = TextureMaker.MakeNormalMap(tex, strength);
+                    tex = TextureMaker.MakeNormalMap(tex, strength, invert);
                     break;
                 
                 case PreviewType.SOBEL_OPERATOR:
-                    tex = TextureMaker.SobelFilter(tex, strength);
+                    tex = TextureMaker.SobelFilter(tex, strength, invert);
                     break;
             }
 

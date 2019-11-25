@@ -3,10 +3,11 @@ using UnityEngine;
 
 namespace TextureMaker
 {
+    public enum VoronoiDistanceMetric { Euclidean, Manhattan };
+
     // TODO: Convert all to GetPixel32(), faster and 4x less ram.
     public class TextureMaker
-    {   
-
+    {
         /// <summary>
         /// Creates a texture and draws a rectangle in it.
         /// <param name="width"> The width of the texture. </param>
@@ -729,14 +730,14 @@ namespace TextureMaker
         /// <param name="strength"> Normal map strength. </param>
         /// <returns> Returns the normal map texture. </returns>
         /// </summary>
-        public static Texture2D MakeNormalMap(Texture2D t, float strength = 0.5f)
+        public static Texture2D MakeNormalMap(Texture2D t, float strength = 0.5f, bool invert = false)
         {
             // TODO: Blur first so we get rid of noise.
             Texture2D nTex = new Texture2D(t.width, t.height, TextureFormat.RGBA32, t.mipmapCount > 1);
             nTex.alphaIsTransparency = false;
 
             Color[] origColors = t.GetPixels();
-            Color[] colors = new Color[nTex.width * nTex.height];
+            Color[] colors = new Color[origColors.Length];
             Color c = Color.white;
 
             Vector3 tangent = new Vector3(1, 0, 0);
@@ -786,8 +787,15 @@ namespace TextureMaker
 
                     tangent.z  =  dx;
                     biTangent.z = -dy;
-                    Vector3 n  = Vector3.Cross(tangent, biTangent).normalized;
 
+                    if(invert)
+                    {
+                        tangent.z *= -1;
+                        biTangent.z *= -1;
+                    }
+
+                    Vector3 n  = Vector3.Cross(tangent, biTangent).normalized;
+                    
                     c.r = (0.5f + n.x * 0.5f);
                     c.g = (0.5f + n.y * 0.5f);
                     c.b = (0.5f + n.z * 0.5f);
@@ -808,10 +816,11 @@ namespace TextureMaker
         /// <param name="strength"> Edge highlighter strength. </param>
         /// <returns> Returns the generated texture. </returns>
         /// </summary>
-        public static Texture2D SobelFilter(Texture2D t, float strength = 0.5f)
+        public static Texture2D SobelFilter(Texture2D t, float strength = 0.5f, bool invert = false)
         {
             // TODO: Add direction and colors???
             Texture2D to = new Texture2D(t.width, t.height, TextureFormat.RGBA32, t.mipmapCount > 1);
+
             Color[] origColors = t.GetPixels();
             Color[] colors = new Color[t.width * t.height];
             Color c = Color.white;
@@ -842,9 +851,19 @@ namespace TextureMaker
 
                     float magnitude = Mathf.Sqrt(dx * dx + dy * dy);
 
-                    c.r = magnitude;
-                    c.g = magnitude;
-                    c.b = magnitude;
+                    if(invert)
+                    {
+                        c.r = 1 - magnitude;
+                        c.g = 1 - magnitude;
+                        c.b = 1 - magnitude;
+                    }
+                    else
+                    {
+                        c.r = magnitude;
+                        c.g = magnitude;
+                        c.b = magnitude;
+                    }
+
 
                     colors[x + y * t.width] = c;           
                 }

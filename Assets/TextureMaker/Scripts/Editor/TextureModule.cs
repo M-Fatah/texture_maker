@@ -5,13 +5,12 @@ using UnityEditor;
 
 namespace TextureMaker
 {
-    public enum GradientType { HORIZONTAL, VERTICAL, RADIAL };
-    public enum NoiseType { RANDOM, PERLIN, VORONOI };
-    public enum PatternType { CHECKER, CIRCLES, TILE };
-    public enum TextureModuleType { GRADIENT, NOISE, PATTERN };
-    public enum PreviewType { DEFAULT, GRAYSCALE, NORMAL_MAP, SOBEL_OPERATOR };
-    public enum PreviewMode { NONE, TWO_D, THREE_D };
-    public enum VoronoiDistanceMetric { Euclidean, Manhattan };
+    public enum GradientType          { HORIZONTAL, VERTICAL, RADIAL };
+    public enum NoiseType             { RANDOM, PERLIN, VORONOI };
+    public enum PatternType           { CHECKER, CIRCLES, TILE };
+    public enum TextureModuleType     { GRADIENT, NOISE, PATTERN };
+    public enum PreviewType           { DEFAULT, GRAYSCALE, NORMAL_MAP, SOBEL_OPERATOR };
+    public enum PreviewMode           { NONE, TWO_D, THREE_D };
 
     // TODO: -- Move each fill function to its class.
     //       -- Move each class to its own file.
@@ -22,13 +21,13 @@ namespace TextureMaker
     {
         [SerializeField] private TextureModuleType moduleType;
         
-        [SerializeField] private NoiseModule noiseModule = new NoiseModule();
+        [SerializeField] private NoiseModule noiseModule       = new NoiseModule();
         [SerializeField] private GradientModule gradientModule = new GradientModule();
-        [SerializeField] private PatternModule patternModule = new PatternModule();
+        [SerializeField] private PatternModule patternModule   = new PatternModule();
 
         [SerializeField] private bool textureSettingsFoldout = true;
 
-        [SerializeField] private bool invertColors = false;
+        [SerializeField] private bool invert = false;
 
         [SerializeField] private Vector2Int textureSize = new Vector2Int(256, 256);
 
@@ -66,7 +65,7 @@ namespace TextureMaker
 
                 GetModule().Draw();
 
-                invertColors = EditorGUILayout.Toggle("Invert colors", invertColors);
+                invert = EditorGUILayout.Toggle("Invert", invert);
 
                 textureSize = EditorGUILayout.Vector2IntField("Size", textureSize);
 
@@ -98,7 +97,7 @@ namespace TextureMaker
         {
             Texture2D tex = GetModule().GetTexture(textureSize);
             
-            if(invertColors)
+            if(invert)
                 TextureMaker.InvertColors(ref tex);
 
             switch(previewType)
@@ -121,7 +120,7 @@ namespace TextureMaker
 
         public void Reset()
         {
-            invertColors = false;
+            invert = false;
             textureSize = new Vector2Int(256, 256);
             GetModule().Reset();
         }
@@ -137,7 +136,7 @@ namespace TextureMaker
         // Radial.
         [SerializeField] float radialMaskThreshold = 2f;
 
-        [SerializeField] private bool flipTexture = false;
+        [SerializeField] private bool flip = false;
 
         public void Draw()
         {
@@ -156,7 +155,7 @@ namespace TextureMaker
                 }
             }
 
-            flipTexture = EditorGUILayout.Toggle("Flip", flipTexture);
+            flip = EditorGUILayout.Toggle("Flip", flip);
 
         }
 
@@ -165,13 +164,13 @@ namespace TextureMaker
             switch(gradientType)
             {
                 case GradientType.HORIZONTAL:
-                    return TextureMaker.FillHorizontal(textureSize.x, textureSize.y, gradient, flipTexture);
+                    return TextureMaker.FillHorizontal(textureSize.x, textureSize.y, gradient, flip);
 
                 case GradientType.VERTICAL:
-                    return TextureMaker.FillVertical(textureSize.x, textureSize.y, gradient, flipTexture);
+                    return TextureMaker.FillVertical(textureSize.x, textureSize.y, gradient, flip);
 
                 case GradientType.RADIAL:
-                    return TextureMaker.FillRadial(textureSize.x, textureSize.y, gradient, radialMaskThreshold, flipTexture);
+                    return TextureMaker.FillRadial(textureSize.x, textureSize.y, gradient, radialMaskThreshold, flip);
 
                 default:
                     return Texture2D.whiteTexture;
@@ -197,7 +196,7 @@ namespace TextureMaker
             // Radial
             radialMaskThreshold = 2f;
 
-            flipTexture = false;
+            flip = false;
         }
     }
 
@@ -208,10 +207,10 @@ namespace TextureMaker
         [SerializeField] NoiseType noiseType = NoiseType.RANDOM;
         
         // Perlin noise.
-        [SerializeField] Gradient gradient = new Gradient();
-        [SerializeField] private int octaves = 1;
+        [SerializeField] private Gradient gradient = new Gradient();
+        [SerializeField] private int octaves = 4;
         [SerializeField] private int seed = 1;
-        [SerializeField] private float perlinNoiseScale = 50f;
+        [SerializeField] private float perlinNoiseScale = 150f;
         [SerializeField] private float perlinNoisePersistence = 0.5f;
         // [SerializeField] private float perlinNoiseFrequency = 2f;
         [SerializeField] private Vector2 perlinNoiseOffset = Vector2.zero;
@@ -224,7 +223,8 @@ namespace TextureMaker
         [SerializeField] private VoronoiDistanceMetric voronoiDstType = VoronoiDistanceMetric.Euclidean;
         [SerializeField] private bool renderFlat = false;
 
-        [SerializeField] private bool flipTexture = false;
+        // Utils.
+        [SerializeField] private bool flip = false;
 
         public void Draw()
         {
@@ -240,7 +240,7 @@ namespace TextureMaker
                 seed = EditorGUILayout.IntSlider("Seed", seed, 1, 100000);
                 perlinNoiseOffset = EditorGUILayout.Vector2Field("Offset", perlinNoiseOffset);
                 
-                flipTexture = EditorGUILayout.Toggle("Flip", flipTexture);
+                flip = EditorGUILayout.Toggle("Flip", flip);
             }
             else if(noiseType == NoiseType.RANDOM)
             {
@@ -255,7 +255,7 @@ namespace TextureMaker
                 useColors = EditorGUILayout.Toggle("Use colors", useColors);
                 renderFlat = EditorGUILayout.Toggle("Render flat", renderFlat);
 
-                flipTexture = EditorGUILayout.Toggle("Flip", flipTexture);
+                flip = EditorGUILayout.Toggle("Flip", flip);
             }
             
         }
@@ -266,12 +266,12 @@ namespace TextureMaker
             {
                 case NoiseType.PERLIN:
                     return TextureMaker.FillPerlinNoise(textureSize.x, textureSize.y, octaves, perlinNoisePersistence, 
-                                                                    perlinNoiseScale, perlinNoiseOffset, gradient, seed, flipTexture);
+                                                                    perlinNoiseScale, perlinNoiseOffset, gradient, seed, flip);
                 case NoiseType.RANDOM:
                     return TextureMaker.FillRandomNoise(textureSize.x, textureSize.y, seed, useColors);
 
                 case NoiseType.VORONOI:
-                    return TextureMaker.FillVoronoi(textureSize.x, textureSize.y, sites, seed, voronoiDstType, renderFlat, useColors, flipTexture);
+                    return TextureMaker.FillVoronoi(textureSize.x, textureSize.y, sites, seed, voronoiDstType, renderFlat, useColors, flip);
 
                 default:
                     return Texture2D.whiteTexture;
@@ -295,9 +295,9 @@ namespace TextureMaker
             gradient.SetKeys(cKeys, aKeys);
 
             // Perlin noise.
-            octaves = 1;
+            octaves = 4;
             seed = 1;
-            perlinNoiseScale = 50f;
+            perlinNoiseScale = 150f;
             perlinNoisePersistence = 0.5f;
             // perlinNoiseFrequency = 2f;
             perlinNoiseOffset = Vector2.zero;
@@ -310,7 +310,7 @@ namespace TextureMaker
             voronoiDstType = VoronoiDistanceMetric.Euclidean;
             renderFlat = false;
 
-            flipTexture = false;
+            flip = false;
         }
     }
 
@@ -320,17 +320,18 @@ namespace TextureMaker
         // TODO: Add circles pattern with radius option?
         [SerializeField] private PatternType patternType = PatternType.CHECKER;
 
-        [SerializeField] private Color color1 = Color.black;
-        [SerializeField] private Color color2 = Color.white;
-        [SerializeField] private Vector2Int count = new Vector2Int(6, 6);
+        [SerializeField] private Color color1     = Color.black;
+        [SerializeField] private Color color2     = Color.white;
+        [SerializeField] private Vector2Int count = new Vector2Int(4, 4);
 
         // Tile.
-        [SerializeField] private Vector2 padding = new Vector2(6, 6);
+        [SerializeField] private Vector2 padding = new Vector2(4, 4);
 
         // Circles.
         [SerializeField] private float scale = 1f;
 
-        [SerializeField] private bool flipTexture = false;
+        // Utils.
+        [SerializeField] private bool flip = false;
 
         public void Draw()
         {
@@ -340,6 +341,7 @@ namespace TextureMaker
             color2 = EditorGUILayout.ColorField("Color 2", color2);
 
             count = EditorGUILayout.Vector2IntField("Count", count);
+
 
             if(GUI.changed)
             {
@@ -359,8 +361,7 @@ namespace TextureMaker
                 scale = EditorGUILayout.Slider("Scale", scale, 1, 100);
             }
 
-
-            flipTexture = EditorGUILayout.Toggle("Flip", flipTexture);
+            flip = EditorGUILayout.Toggle("Flip", flip);
         }
 
         public Texture2D GetTexture(Vector2Int textureSize)
@@ -368,11 +369,11 @@ namespace TextureMaker
             switch(patternType)
             {
                 case PatternType.CHECKER:
-                    return TextureMaker.FillChecker(textureSize.x, textureSize.y, count, color1, color2, flipTexture);
+                    return TextureMaker.FillChecker(textureSize.x, textureSize.y, count, color1, color2, flip);
                 case PatternType.CIRCLES:
-                    return TextureMaker.FillCircles(textureSize.x, textureSize.y, count, color1, color2, scale, flipTexture);
+                    return TextureMaker.FillCircles(textureSize.x, textureSize.y, count, color1, color2, scale, flip);
                 case PatternType.TILE:
-                    return TextureMaker.FillTile(textureSize.x, textureSize.y,  count, padding, color1, color2, flipTexture);
+                    return TextureMaker.FillTile(textureSize.x, textureSize.y,  count, padding, color1, color2, flip);
                 default:
                     return Texture2D.whiteTexture;
             }
@@ -382,12 +383,12 @@ namespace TextureMaker
         {
             color1 = Color.black;
             color2 = Color.white;
-            count = new Vector2Int(6, 6);
-            padding = new Vector2(6, 6);
+            count = new Vector2Int(4, 4);
+            padding = new Vector2(4, 4);
 
             scale = 1f;
 
-            flipTexture = false;
+            flip = false;
         }
     }
 }
